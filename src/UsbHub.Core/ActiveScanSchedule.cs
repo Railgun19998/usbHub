@@ -10,7 +10,7 @@ public static class ActiveScanSchedule
     public const int IntervalSeconds = 1800;
 
     public static async Task<ScheduledScanResult> ReadAsync(string statePath,
-        Func<CancellationToken, Task<ScanResult>> query, DateTimeOffset now, CancellationToken token)
+        Func<CancellationToken, Task<ScanResult>> query, DateTimeOffset now, CancellationToken token, bool force = false)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(statePath))!);
         FileStream lease;
@@ -19,9 +19,9 @@ public static class ActiveScanSchedule
         using (lease)
         {
             var checkpoint = Load(statePath);
-            if (checkpoint.LastAttemptAt is { } last && now < last.AddSeconds(IntervalSeconds))
+            if (!force && checkpoint.LastAttemptAt is { } last && now < last.AddSeconds(IntervalSeconds))
                 return Cached(checkpoint, now);
-            // Reserve before touching hardware. Failures and restarts cannot cause rapid retries.
+            // Reserve automatic reads before hardware access. Explicit manual refresh may bypass cooldown.
             checkpoint = checkpoint with { LastAttemptAt = now };
             Save(statePath, checkpoint);
             var result = await query(token);

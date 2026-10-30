@@ -93,7 +93,7 @@ internal sealed class DeviceViewModel(WirelessDevice device, int threshold)
 {
     public WirelessDevice Device => device;
     public string Name => device.Name;
-    public string Kind => device.Kind;
+    public string Kind => ControllerIdentity.IllustrationKind(device);
     public ImageSource TrayTypeImage => DeviceTrayImage.CreateSource(Kind);
     public string TransportLabel => device.Transport switch { Transport.Bluetooth => "蓝牙", Transport.UsbReceiver => "USB 接收器", Transport.WirelessController => device.IsBatteryPresent == false ? "有线手柄" : "XInput 手柄", _ => device.Kind == "controller" ? "USB 手柄" : "USB HID · 类型待确认" };
     public string Icon => device.Transport == Transport.Bluetooth ? "\uE702" : "\uE88E";

@@ -17,6 +17,9 @@ internal static class NativeDevices
     internal sealed record Node(string InstanceId, string Name, string Class, string Manufacturer, string ContainerId,
         int? CachedBattery, uint DevInst, string[] Ancestors, string? Path = null)
     {
+        public string[] HardwareIds { get; init; } = [];
+        public bool IsGameController => HardwareIds.Any(id => id.Equals("HID_DEVICE_SYSTEM_GAME", StringComparison.OrdinalIgnoreCase) ||
+            id.EndsWith("_UP:0001_U:0004", StringComparison.OrdinalIgnoreCase) || id.EndsWith("_UP:0001_U:0005", StringComparison.OrdinalIgnoreCase));
         public bool IsBluetooth => Ancestors.Prepend(InstanceId).Any(id =>
             id.StartsWith("BTHLE", StringComparison.OrdinalIgnoreCase) || id.StartsWith("BTHENUM\\", StringComparison.OrdinalIgnoreCase));
     }
@@ -68,7 +71,8 @@ internal static class NativeDevices
                 result.Add(new Node(id.ToString(), string.IsNullOrEmpty(friendly) ? RegistryProperty(set, ref info, 0) : friendly,
                     RegistryProperty(set, ref info, 7), RegistryProperty(set, ref info, 11),
                     container.Length == 16 && new Guid(container) != Guid.Empty && new Guid(container).ToString() != "00000000-0000-0000-ffff-ffffffffffff" ? new Guid(container).ToString() : "",
-                    percent, info.DevInst, Ancestors(info.DevInst), path));
+                    percent, info.DevInst, Ancestors(info.DevInst), path)
+                { HardwareIds = RegistryProperty(set, ref info, 1).Split('\0', StringSplitOptions.RemoveEmptyEntries) });
             }
         }
         finally { SetupDiDestroyDeviceInfoList(set); }

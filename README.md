@@ -4,9 +4,9 @@ Windows 11 外设电量工具，使用 .NET 10 / WPF，支持设备总览、系�
 
 ## 下载与运行
 
-在 [GitHub Releases](https://github.com/Railgun19998/usbHub/releases/latest) 下载 **CHUB ver1.3.1** 自包含发行包，解压后双击 `CHUB.exe`，无需另装运行库。
+在 [GitHub Releases](https://github.com/Railgun19998/usbHub/releases/latest) 下载 **CHUB ver1.4.1** 自包含发行包，解压后双击 `CHUB.exe`，无需另装运行库。
 
-右键点击托盘图标查看设备电量；面板中可打开主窗口、刷新或退出。设置在当前 Windows 用户的本地应用数据目录保存。程序默认不开机自启、不安装服务、不上传设备数据。
+右键点击托盘图标查看设备电量；面板中可打开主窗口、刷新或退出。设置 `settings.json` 和扫描缓存 `scan-state.json` 保存在 `CHUB.exe` 同目录，首次升级会迁移旧版本数据且不覆盖同目录已有文件。程序默认不开机自启、不安装服务、不上传设备数据。
 
 ## 电量支持
 
@@ -20,9 +20,9 @@ Windows 11 外设电量工具，使用 .NET 10 / WPF，支持设备总览、系�
 | ASUS ROG PELTA | 已适配厂商电量与充电报告 |
 | NuPhy Air75 V3 | 支持型号识别，2.4 GHz 电量协议暂未适配 |
 
-XInput 只提供电量等级。唯一手柄可关联其实际 HID 名称，多手柄按槽位区分，不猜测身份；无电量的兼容 HID 副本不重复展示。DualSense 蓝牙简化报告不含电量，程序不改变设备模式，该情况下电量可能未知。设备被其他软件独占时也可能无法读取。
+XInput 只提供电量等级。唯一手柄可关联其实际 HID 名称，多手柄按槽位区分，不猜测身份；无电量的兼容 HID 副本和辅助键盘接口不重复展示。XInput 使用 Xbox 布局插画，DS5 使用 DualSense 布局插画，主界面和托盘图标均区分。DualSense 蓝牙简化报告不含电量，程序不改变设备模式，该情况下电量可能未知。设备被其他软件独占时也可能无法读取。
 
-主动读取每 30 分钟最多一轮，手动刷新、插拔、恢复和重启共用同一计划。缓存、未知、断开和充电状态不触发低电量提醒；区间电量按上界判断提醒阈值。
+自动读取每 30 分钟一轮；点击主窗口或托盘的刷新会立即重新识别设备并读取电量，随后重新计算自动读取时间。插拔和启动也会根据 Windows 缓存的设备信息更新手柄列表。缓存、未知、断开和充电状态不触发低电量提醒；区间电量按上界判断提醒阈值。
 
 ## 从源码构建
 
@@ -32,7 +32,7 @@ XInput 只提供电量等级。唯一手柄可关联其实际 HID 名称，多�
 .\scripts\Build.ps1 -SelfContained
 ```
 
-输出 `artifacts/CHUB-ver1.3.1-win-x64.zip`，仅包含 `CHUB.exe` 与简短使用说明。不带 `-SelfContained` 时生成需要 .NET 10 Desktop Runtime x64 的精简包。
+输出 `artifacts/CHUB-ver1.4.1-win-x64.zip`，仅包含 `CHUB.exe` 与简短使用说明。不带 `-SelfContained` 时生成需要 .NET 10 Desktop Runtime x64 的精简包。
 
 仓库只保留程序源码、构建必需文件与本说明；发行包在 Releases 下载。
 

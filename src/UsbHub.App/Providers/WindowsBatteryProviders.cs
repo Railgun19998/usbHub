@@ -55,6 +55,7 @@ internal sealed class HidBatteryProvider : IBatteryProvider
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (node.Path is null || (!node.IsBluetooth && !node.Ancestors.Any(id => id.StartsWith("USB\\", StringComparison.OrdinalIgnoreCase)))) continue;
+            if (ControllerIdentity.IsXInputHid(node.InstanceId) && !node.IsGameController) continue;
             var reading = NativeHid.ReadBattery(node.Path);
             var name = string.IsNullOrWhiteSpace(reading.Name) ? node.Name : reading.Name;
             var receiver = new[] { "wireless", "receiver", "dongle", "2.4", "无线", "接收器", "unifying", "bolt" }.Any(term => name.Contains(term, StringComparison.OrdinalIgnoreCase));
@@ -62,7 +63,8 @@ internal sealed class HidBatteryProvider : IBatteryProvider
             {
                 Id = node.InstanceId, InstanceId = node.InstanceId, GroupId = node.ContainerId,
                 Name = name, Manufacturer = string.IsNullOrWhiteSpace(reading.Manufacturer) ? node.Manufacturer : reading.Manufacturer,
-                Kind = reading.Kind == "device" ? WindowsPropertyProvider.GuessKind(name) : reading.Kind, Transport = node.IsBluetooth ? Transport.Bluetooth : receiver ? Transport.UsbReceiver : Transport.UsbHid,
+                Kind = node.IsGameController ? "controller" : reading.Kind == "device" ? WindowsPropertyProvider.GuessKind(name) : reading.Kind,
+                Transport = node.IsBluetooth ? Transport.Bluetooth : ControllerIdentity.IsXInputHid(node.InstanceId) ? Transport.WirelessController : receiver ? Transport.UsbReceiver : Transport.UsbHid,
                 BatteryPercent = reading.Percent, IsConnected = reading.Percent.HasValue ? true : null,
                 ReadAt = reading.Percent.HasValue ? DateTimeOffset.Now : null,
                 Source = reading.Percent.HasValue ? "HID 标准电量" : "HID 设备发现", Detail = reading.Detail

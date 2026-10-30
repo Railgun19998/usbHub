@@ -44,6 +44,25 @@ internal static class DeviceTrayImage
                     dc.DrawRoundedRectangle(ink, null, new Rect(2, 15, 7, 14), 3, 3);
                     dc.DrawRoundedRectangle(ink, null, new Rect(23, 15, 7, 14), 3, 3);
                     break;
+                case "xbox-controller":
+                    dc.DrawGeometry(null, line, Geometry.Parse("M8,8 C3,8 0,24 3,27 C6,29 10,21 12,21 L20,21 C22,21 26,29 29,26 C32,24 29,8 24,8 Z"));
+                    dc.DrawEllipse(ink, null, new Point(8, 13), 3, 3);
+                    dc.DrawEllipse(ink, null, new Point(20, 21), 2.8, 2.8);
+                    dc.DrawLine(line, new Point(11, 19), new Point(11, 24));
+                    dc.DrawLine(line, new Point(8.5, 21.5), new Point(13.5, 21.5));
+                    foreach (var point in new[] { new Point(24, 11), new Point(27, 14), new Point(21, 14), new Point(24, 17) })
+                        dc.DrawEllipse(ink, null, point, 1.1, 1.1);
+                    break;
+                case "dualsense-controller":
+                    dc.DrawGeometry(null, line, Geometry.Parse("M7,7 C2,10 -1,25 3,28 C6,30 10,23 12,22 L20,22 C22,23 26,30 29,28 C33,25 30,10 25,7 Z"));
+                    dc.DrawRoundedRectangle(null, new Pen(ink, 1.3), new Rect(11, 8, 10, 7), 2, 2);
+                    dc.DrawLine(line, new Point(6, 11), new Point(6, 17));
+                    dc.DrawLine(line, new Point(3, 14), new Point(9, 14));
+                    dc.DrawEllipse(ink, null, new Point(12, 21), 2.7, 2.7);
+                    dc.DrawEllipse(ink, null, new Point(20, 21), 2.7, 2.7);
+                    foreach (var point in new[] { new Point(25, 11), new Point(28, 14), new Point(22, 14), new Point(25, 17) })
+                        dc.DrawEllipse(ink, null, point, 1.1, 1.1);
+                    break;
                 case "controller":
                     dc.DrawGeometry(null, line, Geometry.Parse("M8,8 C3,8 0,24 3,26 C6,29 10,21 12,21 L20,21 C22,21 26,29 29,26 C32,24 29,8 24,8 Z"));
                     dc.DrawLine(line, new Point(7, 12), new Point(7, 19)); dc.DrawLine(line, new Point(3.5, 15.5), new Point(10.5, 15.5));

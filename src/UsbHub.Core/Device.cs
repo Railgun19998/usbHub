@@ -2,6 +2,7 @@ namespace UsbHub.Core;
 
 public enum Transport { Bluetooth, UsbReceiver, UsbHid, WirelessController }
 public enum BatteryBand { Empty, Low, Medium, Full }
+public enum ControllerStyle { Generic, Xbox, DualSense }
 public sealed record BatteryRange(int Minimum, int Maximum)
 {
     public bool IsValid => Minimum >= 0 && Maximum <= 100 && Minimum <= Maximum;
@@ -15,6 +16,7 @@ public sealed record WirelessDevice
     public string InstanceId { get; init; } = "";
     public string Manufacturer { get; init; } = "";
     public string Kind { get; init; } = "device";
+    public ControllerStyle ControllerStyle { get; init; }
     public Transport Transport { get; init; }
     public int? BatteryPercent { get; init; }
     public BatteryRange? BatteryRange { get; init; }
@@ -53,10 +55,13 @@ public static class DeviceMerger
             var named = g.FirstOrDefault(d => d.Kind != "device" && !IsGenericName(d.Name));
             var physical = g.FirstOrDefault(d => d.InstanceId.StartsWith("BTHLE\\DEV_", StringComparison.OrdinalIgnoreCase) ||
                 d.InstanceId.StartsWith("BTHENUM\\DEV_", StringComparison.OrdinalIgnoreCase));
+            var style = ControllerIdentity.Style(best);
             return best with
             {
                 Name = physical?.Name ?? (!IsGenericName(best.Name) ? best.Name : named?.Name ?? g.FirstOrDefault(d => !IsGenericName(d.Name))?.Name ?? best.Name),
                 Kind = best.Kind != "device" ? best.Kind : g.FirstOrDefault(d => d.Kind != "device")?.Kind ?? "device",
+                ControllerStyle = style != ControllerStyle.Generic
+                    ? style : g.Select(ControllerIdentity.Style).FirstOrDefault(s => s != ControllerStyle.Generic),
                 IsConnected = best.IsConnected ?? g.Select(d => d.IsConnected).FirstOrDefault(c => c.HasValue),
                 Detail = best.Detail + string.Concat(g.Where(d => d.Source != best.Source).Select(d => "\n" + d.Source + "：" + d.Detail).Distinct().Take(3))
             };

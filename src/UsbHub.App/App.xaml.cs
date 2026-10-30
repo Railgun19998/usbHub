@@ -22,10 +22,13 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        _dataDirectory = Argument(e.Args, "--data-dir") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "usbHub");
+        _dataDirectory = Argument(e.Args, "--data-dir") ?? AppContext.BaseDirectory;
         DispatcherUnhandledException += (_, args) => { LogError(args.Exception); args.Handled = true; Shutdown(1); };
         try
         {
+            if (Argument(e.Args, "--scan-worker") is null)
+                _dataDirectory = PortableStorage.Prepare(AppContext.BaseDirectory,
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "usbHub"), Argument(e.Args, "--data-dir"));
             if ((Argument(e.Args, "--scan-worker") ?? Argument(e.Args, "--scan")) is { } output)
             {
                 var result = Argument(e.Args, "--scan-worker") is not null

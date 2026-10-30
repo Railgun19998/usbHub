@@ -19,10 +19,18 @@ internal static class DeviceScanner
         Converters = { new JsonStringEnumConverter() }
     };
 
-    internal static async Task<ScheduledScanResult> ScanScheduledAsync(string dataDirectory, CancellationToken token)
+    internal static async Task<ScheduledScanResult> ScanScheduledAsync(string dataDirectory, CancellationToken token, bool force = false)
     {
-        var scheduled = await ActiveScanSchedule.ReadAsync(Path.Combine(dataDirectory, "scan-state.json"), ScanIsolatedAsync, DateTimeOffset.Now, token);
-        return scheduled with { Result = scheduled.Result with { Devices = XInputSupport.Consolidate(scheduled.Result.Devices) } };
+        var scheduled = await ActiveScanSchedule.ReadAsync(Path.Combine(dataDirectory, "scan-state.json"), ScanIsolatedAsync, DateTimeOffset.Now, token, force);
+        try
+        {
+            var discovered = PassiveControllerDiscovery.Discover(scheduled.NextQueryAt);
+            return scheduled with { Result = scheduled.Result with { Devices = ControllerIdentity.WithDiscoveredControllers(scheduled.Result.Devices, discovered) } };
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            return scheduled with { Result = scheduled.Result with { Devices = XInputSupport.Consolidate(scheduled.Result.Devices) } };
+        }
     }
 
     internal static async Task<ScanResult> ScanNativeAsync(CancellationToken token)

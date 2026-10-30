@@ -79,7 +79,7 @@ public partial class MainWindow : Window
         _tray = new TrayIcon(new Guid("b76d7ee4-572b-43ee-a14b-a057f61f2950"), icon, "CHUB · 无线设备电量");
         ConfigureTray(_tray);
         _trayTooltip.OpenRequested += Restore;
-        _trayTooltip.RefreshRequested += async () => await RefreshAsync();
+        _trayTooltip.RefreshRequested += async () => await RefreshAsync(force: true);
         _trayTooltip.ExitRequested += Exit;
     }
 
@@ -108,7 +108,7 @@ public partial class MainWindow : Window
     internal void Restore() { _trayTooltip.HideImmediately(); Show(); if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal; if (!_automated) Activate(); }
     private void Exit() { _exit = true; Close(); }
 
-    private async Task RefreshAsync()
+    private async Task RefreshAsync(bool force = false)
     {
         if (_model.IsDemo || _shutdown.IsCancellationRequested) return;
         if (_model.IsScanning) return;
@@ -116,13 +116,13 @@ public partial class MainWindow : Window
         _model.Status = "正在读取 Windows、蓝牙和 HID 设备…";
         try
         {
-            var scheduled = await DeviceScanner.ScanScheduledAsync(Path.GetDirectoryName(_settingsPath)!, _shutdown.Token);
+            var scheduled = await DeviceScanner.ScanScheduledAsync(Path.GetDirectoryName(_settingsPath)!, _shutdown.Token, force);
             var scan = scheduled.Result;
             _model.SetDevices(scan.Devices);
             UpdateTray();
             _model.Notice = string.Join("\n", scan.Warnings.Prepend(_settingsWarning ?? "").Where(s => s.Length > 0));
-            _model.Status = scheduled.WasQueried ? $"读取于 {scan.ScannedAt:HH:mm:ss} · 每 30 分钟主动读取" :
-                $"使用上次结果 · 下次主动读取 {scheduled.NextQueryAt:HH:mm:ss}（每 30 分钟一次）";
+            _model.Status = scheduled.WasQueried ? $"读取于 {scan.ScannedAt:HH:mm:ss} · 自动读取间隔 30 分钟" :
+                $"已更新设备列表 · 下次自动读取电量 {scheduled.NextQueryAt:HH:mm:ss} · 可手动立即刷新";
             _timer.Interval = TimeSpan.FromSeconds(Math.Max(1, (scheduled.NextQueryAt - DateTimeOffset.Now).TotalSeconds));
             if (scheduled.WasQueried && _activeSettings.NotificationsEnabled)
             {
@@ -203,7 +203,7 @@ public partial class MainWindow : Window
     private void Minimize_Click(object sender, RoutedEventArgs e) => SystemCommands.MinimizeWindow(this);
     private void Maximize_Click(object sender, RoutedEventArgs e) { if (WindowState == WindowState.Maximized) SystemCommands.RestoreWindow(this); else SystemCommands.MaximizeWindow(this); }
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
-    private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
+    private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshAsync(force: true);
     private void Navigate_Click(object sender, RoutedEventArgs e) { if (sender is Button { Tag: string page }) SetNavigation(page); }
     private void SetNavigation(string page)
     {

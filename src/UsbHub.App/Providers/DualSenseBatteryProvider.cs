@@ -39,6 +39,7 @@ internal sealed class DualSenseBatteryProvider : IBatteryProvider
             {
                 Id = node.InstanceId, InstanceId = node.InstanceId, GroupId = node.ContainerId,
                 Name = DualSenseBatteryDecoder.Model(node.InstanceId)!, Manufacturer = "Sony", Kind = "controller",
+                ControllerStyle = ControllerStyle.DualSense,
                 Transport = node.IsBluetooth ? Transport.Bluetooth : Transport.UsbHid, IsBatteryPresent = true,
                 Source = "DualSense HID 设备发现", Detail = "尚未收到完整的 DualSense 电量报告。"
             };

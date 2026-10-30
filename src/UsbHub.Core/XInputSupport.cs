@@ -13,6 +13,7 @@ public static class XInputSupport
         return new WirelessDevice
         {
             Id = $"xinput:{index}", Name = $"XInput 游戏手柄 {index + 1}", Kind = "controller",
+            ControllerStyle = ControllerStyle.Xbox,
             Transport = Transport.WirelessController, IsConnected = true,
             IsBatteryPresent = wired ? false : knownBattery ? true : null, Band = band,
             ReadAt = band.HasValue ? readAt : null,
@@ -28,6 +29,8 @@ public static class XInputSupport
 
     public static IReadOnlyList<WirelessDevice> Consolidate(IReadOnlyList<WirelessDevice> devices)
     {
+        devices = devices.Where(d => !ControllerIdentity.IsAuxiliary(d))
+            .Select(d => d with { ControllerStyle = ControllerIdentity.Style(d) }).ToArray();
         var slots = devices.Where(d => d.Id.StartsWith("xinput:", StringComparison.OrdinalIgnoreCase)).ToArray();
         if (slots.Length == 0) return devices;
         // IG_ identifies the DirectInput HID view exported by an XInput driver.
