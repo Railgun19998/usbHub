@@ -19,12 +19,15 @@ internal static class DeviceScanner
         Converters = { new JsonStringEnumConverter() }
     };
 
-    internal static Task<ScheduledScanResult> ScanScheduledAsync(string dataDirectory, CancellationToken token) =>
-        ActiveScanSchedule.ReadAsync(Path.Combine(dataDirectory, "scan-state.json"), ScanIsolatedAsync, DateTimeOffset.Now, token);
+    internal static async Task<ScheduledScanResult> ScanScheduledAsync(string dataDirectory, CancellationToken token)
+    {
+        var scheduled = await ActiveScanSchedule.ReadAsync(Path.Combine(dataDirectory, "scan-state.json"), ScanIsolatedAsync, DateTimeOffset.Now, token);
+        return scheduled with { Result = scheduled.Result with { Devices = XInputSupport.Consolidate(scheduled.Result.Devices) } };
+    }
 
     internal static async Task<ScanResult> ScanNativeAsync(CancellationToken token)
     {
-        IBatteryProvider[] providers = [new WindowsPropertyProvider(), new HidBatteryProvider(), new WinRtBluetoothProvider(), new XInputBatteryProvider(), new VendorBatteryProvider()];
+        IBatteryProvider[] providers = [new WindowsPropertyProvider(), new HidBatteryProvider(), new WinRtBluetoothProvider(), new XInputBatteryProvider(), new DualSenseBatteryProvider(), new VendorBatteryProvider()];
         var results = await Task.WhenAll(providers.Select(async p =>
         {
             try { return await p.ScanAsync(token).WaitAsync(TimeSpan.FromSeconds(20), token); }
@@ -35,7 +38,7 @@ internal static class DeviceScanner
         var slottedReceivers = all.Where(d => d.GroupId.Contains(":slot:", StringComparison.Ordinal)).Select(d => d.GroupId.Split(":slot:")[0]).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var merged = DeviceMerger.Merge(all.Where(d => !slottedReceivers.Contains(d.GroupId)))
             .Where(d => d.Transport != Transport.UsbHid || d.Kind != "device" || d.HasBattery).Select(NuPhyCompatibility.Annotate).ToArray();
-        return new(DateTimeOffset.Now, merged,
+        return new(DateTimeOffset.Now, XInputSupport.Consolidate(merged),
             results.Where(r => r.Error is not null).Select(r => r.Error!).ToArray());
     }
 
@@ -48,9 +51,9 @@ internal static class DeviceScanner
         {
             StartInfo = new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden }
         };
-        // dotnet UsbHub.dll and published apphost launches are both supported.
+        // dotnet CHUB.dll and published apphost launches are both supported.
         if (string.Equals(Path.GetFileNameWithoutExtension(Environment.ProcessPath), "dotnet", StringComparison.OrdinalIgnoreCase))
-            process.StartInfo.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, "UsbHub.dll"));
+            process.StartInfo.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, "CHUB.dll"));
         process.StartInfo.ArgumentList.Add("--scan-worker");
         process.StartInfo.ArgumentList.Add(output);
         var started = false;

@@ -7,10 +7,18 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\UsbHub.ico</ApplicationIcon>
-    <AssemblyName>UsbHub</AssemblyName>
+    <AssemblyName>CHUB</AssemblyName>
+    <AssemblyTitle>CHUB</AssemblyTitle>
+    <Product>CHUB</Product>
     <RootNamespace>UsbHub.App</RootNamespace>
-    <Description>Windows wireless device battery monitor</Description>
+    <Description>CHUB Windows wireless device battery monitor</Description>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(EnableUiTests)' == 'true' and Exists('../../tests/UsbHub.UiTests/MainWindow.Preview.cs')">
+    <DefineConstants>$(DefineConstants);CHUB_UI_TESTS</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(EnableUiTests)' == 'true' and Exists('../../tests/UsbHub.UiTests/MainWindow.Preview.cs')">
+    <Compile Include="../../tests/UsbHub.UiTests/*.cs" Link="PrivateChecks/%(Filename)%(Extension)" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UsbHub.Core\UsbHub.Core.csproj" />
     <Resource Include="Assets\UsbHub.ico" />

@@ -12,7 +12,8 @@ public sealed class LowBatteryPolicy
         {
             var key = string.IsNullOrEmpty(device.GroupId) ? device.Id : device.GroupId;
             // A small recovery margin avoids repeating alerts around the boundary.
-            if (device.IsCharging == true || (!device.IsCached && device.BatteryPercent > threshold + 5) ||
+            if (device.IsCharging == true || (!device.IsCached && (device.BatteryPercent > threshold + 5 ||
+                (device.BatteryRange is { IsValid: true } range && range.Minimum > threshold + 5))) ||
                 device.Band is BatteryBand.Medium or BatteryBand.Full)
             {
                 _lastSent.Remove(key);

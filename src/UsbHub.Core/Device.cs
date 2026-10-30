@@ -2,6 +2,10 @@ namespace UsbHub.Core;
 
 public enum Transport { Bluetooth, UsbReceiver, UsbHid, WirelessController }
 public enum BatteryBand { Empty, Low, Medium, Full }
+public sealed record BatteryRange(int Minimum, int Maximum)
+{
+    public bool IsValid => Minimum >= 0 && Maximum <= 100 && Minimum <= Maximum;
+}
 
 public sealed record WirelessDevice
 {
@@ -13,17 +17,19 @@ public sealed record WirelessDevice
     public string Kind { get; init; } = "device";
     public Transport Transport { get; init; }
     public int? BatteryPercent { get; init; }
+    public BatteryRange? BatteryRange { get; init; }
     public BatteryBand? Band { get; init; }
     public bool? IsCharging { get; init; }
+    public bool? IsBatteryPresent { get; init; }
     // null means discovery only; presence in PnP is not a connection check.
     public bool? IsConnected { get; init; }
     public bool IsCached { get; init; }
     public DateTimeOffset? ReadAt { get; init; }
     public string Source { get; init; } = "未公开标准电量";
     public string Detail { get; init; } = "设备未公开标准电量字段，可能需要厂商协议适配。";
-    public bool HasBattery => BatteryPercent.HasValue || Band.HasValue;
+    public bool HasBattery => BatteryPercent.HasValue || Band.HasValue || BatteryRange is { IsValid: true };
     public bool IsLow(int threshold) => IsConnected != false && !IsCached && IsCharging != true &&
-        (BatteryPercent is int p ? p <= threshold : Band is BatteryBand.Empty or BatteryBand.Low);
+        (BatteryPercent is int p ? p <= threshold : BatteryRange is { IsValid: true } range ? range.Maximum <= threshold : Band is BatteryBand.Empty or BatteryBand.Low);
 }
 
 public sealed record ProviderResult(string Provider, IReadOnlyList<WirelessDevice> Devices, string? Error = null);

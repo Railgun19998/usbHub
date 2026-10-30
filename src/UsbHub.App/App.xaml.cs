@@ -35,7 +35,11 @@ public partial class App : Application
                 await File.WriteAllTextAsync(output, JsonSerializer.Serialize(result, DeviceScanner.JsonOptions));
                 Shutdown(); return;
             }
+#if CHUB_UI_TESTS
             var preview = Argument(e.Args, "--preview");
+#else
+            string? preview = null;
+#endif
             var background = e.Args.Contains("--background", StringComparer.Ordinal);
             if (preview is null)
             {
@@ -63,7 +67,9 @@ public partial class App : Application
                 window.ShowInTaskbar = true; window.ShowActivated = true;
             }
             if (_restore is not null) _restoreWait = ThreadPool.RegisterWaitForSingleObject(_restore, (_, _) => Dispatcher.BeginInvoke(window.Restore), null, Timeout.Infinite, false);
+#if CHUB_UI_TESTS
             if (preview is not null) await window.RenderPreviewsAsync(preview, e.Args.Contains("--interactive-tray-test", StringComparer.Ordinal));
+#endif
         }
         catch (Exception ex) { LogError(ex); Shutdown(1); }
     }

@@ -10,6 +10,13 @@ artifacts/
 .env
 .env.*
 !.env.example
+/AGENTS.md
+/tests/
+/docs/
+/ui/
+/*.html
+/scripts/*
+!/scripts/Build.ps1
 *.pfx
 *.p12
 *.key

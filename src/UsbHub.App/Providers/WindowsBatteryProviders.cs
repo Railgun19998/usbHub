@@ -40,6 +40,7 @@ internal sealed class WindowsPropertyProvider : IBatteryProvider
         if (new[] { "mouse", "鼠标" }.Any(x => name.Contains(x, StringComparison.OrdinalIgnoreCase))) return "mouse";
         if (new[] { "keyboard", "键盘", "air75" }.Any(x => name.Contains(x, StringComparison.OrdinalIgnoreCase))) return "keyboard";
         if (new[] { "head", "耳机", "wh-", "buds", "pelta" }.Any(x => name.Contains(x, StringComparison.OrdinalIgnoreCase))) return "headphones";
+        if (new[] { "controller", "gamepad", "手柄", "dualsense", "dualshock" }.Any(x => name.Contains(x, StringComparison.OrdinalIgnoreCase))) return "controller";
         return "device";
     }
 }
@@ -73,25 +74,23 @@ internal sealed class HidBatteryProvider : IBatteryProvider
 
 internal sealed class XInputBatteryProvider : IBatteryProvider
 {
-    public string Name => "XInput 无线手柄";
+    public string Name => "通用 XInput 游戏设备";
     public Task<ProviderResult> ScanAsync(CancellationToken cancellationToken) => Task.Run(() =>
     {
         var devices = new List<WirelessDevice>();
         for (uint i = 0; i < 4; i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (XInputGetBatteryInformation(i, 0, out var battery) != 0 || battery.Type is 0 or 1) continue;
-            devices.Add(new WirelessDevice
-            {
-                Id = $"xinput:{i}", Name = $"无线游戏手柄 {i + 1}", Kind = "controller", Transport = Transport.WirelessController,
-                IsConnected = true, Band = battery.Type == 255 || battery.Level > 3 ? null : (BatteryBand)battery.Level,
-                ReadAt = DateTimeOffset.Now, Source = "XInput 电量等级",
-                Detail = "XInput 只提供空、低、中、满等级，不把等级换算为虚构百分比；传输方式由系统管理。"
-            });
+            var capabilitiesResult = XInputGetCapabilities(i, 0, out _);
+            var batteryResult = XInputGetBatteryInformation(i, 0, out var battery);
+            var device = XInputSupport.Create(i, capabilitiesResult, batteryResult, battery.Type, battery.Level, DateTimeOffset.Now);
+            if (device is not null) devices.Add(device);
         }
         return new ProviderResult(Name, devices);
     }, cancellationToken);
 
     [StructLayout(LayoutKind.Sequential)] private struct BatteryInfo { public byte Type, Level; }
+    [StructLayout(LayoutKind.Explicit, Size = 20)] private struct Capabilities { }
+    [DllImport("xinput1_4.dll")] private static extern uint XInputGetCapabilities(uint index, uint flags, out Capabilities capabilities);
     [DllImport("xinput1_4.dll")] private static extern uint XInputGetBatteryInformation(uint index, byte type, out BatteryInfo information);
 }

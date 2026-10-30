@@ -1,5 +1,5 @@
-﻿<Window x:Class="UsbHub.App.TrayBatteryWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-  Title="usbHub 设备电量" Width="300" MaxHeight="420" SizeToContent="Height" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" Background="Transparent" Foreground="#0A2B28">
+<Window x:Class="UsbHub.App.TrayBatteryWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+  Title="CHUB 设备电量" Width="300" MaxHeight="420" SizeToContent="Height" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" Background="Transparent" Foreground="#0A2B28">
   <shell:WindowChrome.WindowChrome><shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="0" GlassFrameThickness="0" CornerRadius="12" UseAeroCaptionButtons="False" /></shell:WindowChrome.WindowChrome>
   <Window.Resources>
     <SolidColorBrush x:Key="TraySeparator" Color="#30A4CEC5" />
@@ -11,7 +11,7 @@
       <Border x:Name="Highlights" CornerRadius="14" IsHitTestVisible="False"><Border.Background><RadialGradientBrush Center="0,0" GradientOrigin="0,0" RadiusX="1.2" RadiusY="1"><GradientStop Color="#80FFFFFF" /><GradientStop Color="#0012C2A8" Offset="1" /></RadialGradientBrush></Border.Background></Border>
       <Grid Margin="10,10,10,8">
         <Grid.RowDefinitions><RowDefinition Height="30" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-        <Border BorderBrush="{DynamicResource TraySeparator}" BorderThickness="0,0,0,1" Margin="0,0,0,3"><Grid Margin="4,0,4,5"><TextBlock FontSize="15" VerticalAlignment="Center"><Run Text="usb" FontWeight="Bold" /><Run Text="Hub" Foreground="#89A3A0" /></TextBlock><TextBlock Text="设备电量" FontSize="10" Opacity="0.6" HorizontalAlignment="Right" VerticalAlignment="Center" /></Grid></Border>
+        <Border BorderBrush="{DynamicResource TraySeparator}" BorderThickness="0,0,0,1" Margin="0,0,0,3"><Grid Margin="4,0,4,5"><TextBlock FontSize="15" VerticalAlignment="Center"><Run Text="C" FontWeight="Bold" /><Run Text="HUB" Foreground="#89A3A0" /></TextBlock><TextBlock Text="设备电量" FontSize="10" Opacity="0.6" HorizontalAlignment="Right" VerticalAlignment="Center" /></Grid></Border>
         <ScrollViewer x:Name="TrayScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
           <StackPanel>
             <TextBlock x:Name="EmptyLabel" Text="正在读取设备电量…" FontSize="11" Margin="4,14" />

@@ -1,12 +1,15 @@
 <Project>
   <PropertyGroup>
-    <Version>1.2.2</Version>
+    <Version>1.3.1</Version>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Deterministic>true</Deterministic>
+    <PathMap>$(MSBuildThisFileDirectory)=/_/CHUB/</PathMap>
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+    <DebugSymbols Condition="'$(Configuration)' == 'Release'">false</DebugSymbols>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <UseSharedCompilation>false</UseSharedCompilation>
   </PropertyGroup>

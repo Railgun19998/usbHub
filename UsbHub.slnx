@@ -1,5 +1,4 @@
 <Solution>
   <Project Path="src/UsbHub.Core/UsbHub.Core.csproj" />
   <Project Path="src/UsbHub.App/UsbHub.App.csproj" />
-  <Project Path="tests/UsbHub.Tests/UsbHub.Tests.csproj" />
 </Solution>

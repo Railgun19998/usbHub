@@ -78,7 +78,7 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     {
         Devices.Clear();
         var filtered = _devices.Where(d => (_filter != "bluetooth" || d.Transport == Transport.Bluetooth) &&
-            (_filter != "usb" || d.Transport is Transport.UsbHid or Transport.UsbReceiver) &&
+            (_filter != "usb" || d.Transport is Transport.UsbHid or Transport.UsbReceiver or Transport.WirelessController) &&
             (_filter != "low" || d.IsLow(Threshold)) &&
             (string.IsNullOrWhiteSpace(Search) || d.Name.Contains(Search, StringComparison.CurrentCultureIgnoreCase) || d.Manufacturer.Contains(Search, StringComparison.CurrentCultureIgnoreCase)));
         foreach (var d in filtered.OrderByDescending(d => d.IsLow(Threshold)).ThenByDescending(d => d.HasBattery)) Devices.Add(new(d, Threshold));
@@ -95,21 +95,21 @@ internal sealed class DeviceViewModel(WirelessDevice device, int threshold)
     public string Name => device.Name;
     public string Kind => device.Kind;
     public ImageSource TrayTypeImage => DeviceTrayImage.CreateSource(Kind);
-    public string TransportLabel => device.Transport switch { Transport.Bluetooth => "蓝牙", Transport.UsbReceiver => "USB 接收器", Transport.WirelessController => "无线手柄", _ => "USB HID · 类型待确认" };
+    public string TransportLabel => device.Transport switch { Transport.Bluetooth => "蓝牙", Transport.UsbReceiver => "USB 接收器", Transport.WirelessController => device.IsBatteryPresent == false ? "有线手柄" : "XInput 手柄", _ => device.Kind == "controller" ? "USB 手柄" : "USB HID · 类型待确认" };
     public string Icon => device.Transport == Transport.Bluetooth ? "\uE702" : "\uE88E";
-    public string BatteryText => device.BatteryPercent is int p ? p.ToString() : device.Band switch { BatteryBand.Empty => "空", BatteryBand.Low => "低", BatteryBand.Medium => "中", BatteryBand.Full => "满", _ => "—" };
-    public string BatteryUnit => device.BatteryPercent.HasValue ? "%" : device.Band.HasValue ? "电量等级" : "电量未知";
-    public string TrayBatteryText => device.BatteryPercent is int p ? $"{p}%" : device.Band.HasValue ? $"{BatteryText}电量" : "电量未知";
+    public string BatteryText => device.BatteryPercent is int p ? p.ToString() : device.BatteryRange is { IsValid: true } range ? range.Minimum == range.Maximum ? range.Minimum.ToString() : $"{range.Minimum}–{range.Maximum}" : device.Band switch { BatteryBand.Empty => "空", BatteryBand.Low => "低", BatteryBand.Medium => "中", BatteryBand.Full => "满", _ => "—" };
+    public string BatteryUnit => device.BatteryPercent.HasValue || device.BatteryRange is { IsValid: true } ? "%" : device.Band.HasValue ? "电量等级" : device.IsBatteryPresent == false ? "有线供电" : "电量未知";
+    public string TrayBatteryText => device.BatteryPercent.HasValue || device.BatteryRange is { IsValid: true } ? $"{BatteryText}%" : device.Band.HasValue ? $"{BatteryText}电量" : device.IsBatteryPresent == false ? "有线供电" : "电量未知";
     public string TrayState => device.IsConnected == false ? device.IsCached ? "已断开 · 缓存" : "已断开" :
         device.IsCached ? "缓存" : device.IsCharging == true ? "充电中" : device.IsConnected is null ? "连接待确认" : "";
-    public double BatteryWidth => device.BatteryPercent is int p ? p * 1.4 : device.Band.HasValue ? 0 : 0;
-    public bool ShowBar => device.BatteryPercent.HasValue;
-    public double BatteryPercent => device.BatteryPercent ?? 0;
+    public double BatteryWidth => BatteryPercent * 1.4;
+    public bool ShowBar => device.BatteryPercent.HasValue || device.BatteryRange is { IsValid: true };
+    public double BatteryPercent => device.BatteryPercent ?? (device.BatteryRange is { IsValid: true } range ? range.Minimum : 0);
     public bool IsBatteryUnknown => !device.HasBattery;
     public bool NeedsAttention => device.IsLow(threshold) && device.IsCharging != true;
     public Brush BarColor => System.Windows.SystemParameters.HighContrast ? System.Windows.SystemColors.HighlightBrush : new LinearGradientBrush(NeedsAttention ? System.Windows.Media.Color.FromRgb(235, 145, 32) : System.Windows.Media.Color.FromRgb(0, 160, 139), NeedsAttention ? System.Windows.Media.Color.FromRgb(255, 191, 100) : System.Windows.Media.Color.FromRgb(18, 206, 176), 0);
     public string Status => device.IsConnected == false ? device.IsCached ? "已断开 · 缓存电量" : "已断开" : device.IsCached ? "系统缓存" : device.IsCharging == true ? "正在充电" :
-        device.IsLow(threshold) ? "需要充电" : device.HasBattery ? "电量正常" : "等待电量信息";
+        device.IsBatteryPresent == false ? "有线供电" : device.IsLow(threshold) ? "需要充电" : device.HasBattery ? "电量正常" : "等待电量信息";
     public string Source => device.Source;
     public string Detail => device.Detail + (device.ReadAt is { } time ? $"\n读取于 {time:HH:mm:ss}（非设备内部更新时间）" : "") +
         (device.Transport == Transport.UsbHid ? "\nUSB HID 可能是有线设备；仅凭 HID 不能确认无线频段。" : "");
