@@ -23,7 +23,14 @@
           <Grid Grid.Row="2" Visibility="{Binding IsOverview, Converter={StaticResource BoolVisibility}}" Margin="-6,0,-6,0">
             <Border Style="{StaticResource GlassPanel}" Margin="6" Visibility="{Binding IsEmpty, Converter={StaticResource BoolVisibility}}"><StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="&#xE88E;" FontFamily="Segoe MDL2 Assets" FontSize="36" Foreground="{DynamicResource Accent}" HorizontalAlignment="Center" /><TextBlock Text="{Binding EmptyTitle}" FontSize="21" Margin="0,20,0,10" HorizontalAlignment="Center" /><TextBlock Text="{Binding EmptyDescription}" Style="{StaticResource Muted}" TextAlignment="Center" MaxWidth="430" /></StackPanel></Border>
             <ItemsControl x:Name="DeviceCards" ItemsSource="{Binding PageDevices}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3" Rows="2" /></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate>
-              <controls:GlassCard Style="{StaticResource GlassPanel}" Margin="6" Padding="16,15,16,14" ToolTip="{Binding Detail}">
+              <controls:GlassCard Style="{StaticResource GlassPanel}" Margin="6" Padding="16,15,16,14" ToolTip="{Binding Detail}" Focusable="True" Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}" AutomationProperties.Name="{Binding Name}">
+                <controls:GlassCard.ContextMenu>
+                  <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                    <MenuItem Header="删除设备信息" Click="DeleteDevice_Click" IsEnabled="{Binding PlacementTarget.Tag.CanEditDevices, RelativeSource={RelativeSource AncestorType=ContextMenu}}" ToolTip="清除本地记录并停止显示，可在设置中恢复识别">
+                      <MenuItem.Icon><TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=MenuItem}}" /></MenuItem.Icon>
+                    </MenuItem>
+                  </ContextMenu>
+                </controls:GlassCard.ContextMenu>
                 <Grid><Grid.RowDefinitions><RowDefinition Height="22" /><RowDefinition Height="*" MinHeight="74" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="65" /><RowDefinition Height="16" /><RowDefinition Height="20" /></Grid.RowDefinitions>
                   <DockPanel><TextBlock Text="{Binding Icon}" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource TextSecondary}" Margin="0,0,7,0" FontSize="10" VerticalAlignment="Center" /><TextBlock Text="{Binding TransportLabel}" Foreground="{DynamicResource TextSecondary}" FontSize="11" VerticalAlignment="Center" /><Border Background="#20E79634" BorderBrush="#60E79634" BorderThickness="1" CornerRadius="9" Padding="7,1" HorizontalAlignment="Right" Visibility="{Binding NeedsAttention, Converter={StaticResource BoolVisibility}}"><TextBlock Text="低" FontSize="10" Foreground="#BC7218" /></Border></DockPanel>
                   <controls:DeviceIllustration Grid.Row="1" Kind="{Binding Kind}" MaxHeight="145" Margin="0,3,0,7" />
@@ -44,6 +51,7 @@
               <TextBlock Text="仅对实时读取成功的设备提醒。相同设备每 4 小时最多提醒一次，充电或电量恢复后重置。通知遵循 Windows 勿扰设置。" Style="{StaticResource Muted}" FontSize="12" />
             </StackPanel></Border>
             <Border Style="{StaticResource GlassPanel}" Padding="25" Margin="0,0,0,18"><StackPanel><TextBlock Text="运行与外观" FontSize="18" FontWeight="SemiBold" /><CheckBox Content="关闭窗口时继续在系统托盘运行" IsChecked="{Binding CloseToTray}" /><CheckBox Content="开启玻璃材质与柔和光晕" IsChecked="{Binding GlassEnabled}" /><TextBlock Text="自动查询间隔：30 分钟（全部设备）" Foreground="{DynamicResource Accent}" Margin="0,15,0,8" /><TextBlock Text="点击刷新设备会立即重新识别设备并读取电量。自动读取每 30 分钟一轮；插拔会先更新设备列表。设置和扫描缓存保存在程序同目录，退出托盘程序后停止监控。" Style="{StaticResource Muted}" FontSize="12" Margin="0,6,0,0" /></StackPanel></Border>
+            <Border Style="{StaticResource GlassPanel}" Padding="25" Margin="0,0,0,18"><StackPanel><TextBlock Text="设备记录" FontSize="18" FontWeight="SemiBold" /><TextBlock Text="右键设备卡片可删除该设备的信息，清除本地缓存并停止在主窗口、托盘和提醒中显示。恢复后，点击刷新设备重新识别。" Style="{StaticResource Muted}" FontSize="12" Margin="0,10,0,14" /><Button Content="恢复已删除设备" Click="RestoreDeletedDevices_Click" IsEnabled="{Binding CanEditDevices}" HorizontalAlignment="Left" /></StackPanel></Border>
             <StackPanel Orientation="Horizontal"><Button Content="保存设置" Style="{StaticResource AccentButton}" Click="SaveSettings_Click" Margin="0,0,12,0" /><Button Content="发送测试通知" Click="TestNotification_Click" /></StackPanel>
           </StackPanel></ScrollViewer>
 

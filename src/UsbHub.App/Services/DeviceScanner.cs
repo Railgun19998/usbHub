@@ -25,7 +25,8 @@ internal static class DeviceScanner
         try
         {
             var discovered = PassiveControllerDiscovery.Discover(scheduled.NextQueryAt);
-            return scheduled with { Result = scheduled.Result with { Devices = ControllerIdentity.WithDiscoveredControllers(scheduled.Result.Devices, discovered) } };
+            return scheduled with { Result = scheduled.Result with { Devices = ActiveScanSchedule.FilterDeletedDevices(
+                Path.Combine(dataDirectory, "scan-state.json"), ControllerIdentity.WithDiscoveredControllers(scheduled.Result.Devices, discovered)) } };
         }
         catch (System.ComponentModel.Win32Exception)
         {

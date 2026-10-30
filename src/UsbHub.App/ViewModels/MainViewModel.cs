@@ -48,7 +48,8 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     public string ProtectionSummary => Notifications ? $"低电量提醒已开启 · 阈值 {Threshold}%" : "低电量提醒已暂停";
     public string RefreshLabel => IsScanning ? "正在读取…" : "刷新设备";
     public bool CanRefresh => !IsScanning && !IsDemo;
-    public bool IsScanning { get => _isScanning; set { _isScanning = value; Changed(); Changed(nameof(RefreshLabel)); Changed(nameof(CanRefresh)); } }
+    public bool CanEditDevices => !IsScanning;
+    public bool IsScanning { get => _isScanning; set { _isScanning = value; Changed(); Changed(nameof(RefreshLabel)); Changed(nameof(CanRefresh)); Changed(nameof(CanEditDevices)); } }
     public bool IsDemo { get => _isDemo; set { _isDemo = value; Changed(); Changed(nameof(CanRefresh)); } }
     public string Status { get => _status; set { _status = value; Changed(); } }
     public string Notice { get => _notice; set { _notice = value; Changed(); Changed(nameof(HasNotice)); } }

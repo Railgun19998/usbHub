@@ -4,9 +4,11 @@ Windows 11 外设电量工具，使用 .NET 10 / WPF，支持设备总览、系�
 
 ## 下载与运行
 
-在 [GitHub Releases](https://github.com/Railgun19998/usbHub/releases/latest) 下载 **CHUB ver1.4.1** 自包含发行包，解压后双击 `CHUB.exe`，无需另装运行库。
+在 [GitHub Releases](https://github.com/Railgun19998/usbHub/releases/latest) 下载 **CHUB ver1.5.1** 自包含发行包，解压后双击 `CHUB.exe`，无需另装运行库。
 
 右键点击托盘图标查看设备电量；面板中可打开主窗口、刷新或退出。设置 `settings.json` 和扫描缓存 `scan-state.json` 保存在 `CHUB.exe` 同目录，首次升级会迁移旧版本数据且不覆盖同目录已有文件。程序默认不开机自启、不安装服务、不上传设备数据。
+
+托盘面板每行显示两个设备，滚动条与主窗口使用统一的圆角配色。右键主窗口的设备卡片，选择“删除设备信息”可清除该设备缓存并停止显示和提醒；删除状态会保存在扫描缓存中，刷新和重启后仍有效。在“提醒与设置”中点击“恢复已删除设备”，再刷新即可重新识别。
 
 ## 电量支持
 
@@ -32,7 +34,7 @@ XInput 只提供电量等级。唯一手柄可关联其实际 HID 名称，多�
 .\scripts\Build.ps1 -SelfContained
 ```
 
-输出 `artifacts/CHUB-ver1.4.1-win-x64.zip`，仅包含 `CHUB.exe` 与简短使用说明。不带 `-SelfContained` 时生成需要 .NET 10 Desktop Runtime x64 的精简包。
+输出 `artifacts/CHUB-ver1.5.1-win-x64.zip`，仅包含 `CHUB.exe` 与简短使用说明。不带 `-SelfContained` 时生成需要 .NET 10 Desktop Runtime x64 的精简包。
 
 仓库只保留程序源码、构建必需文件与本说明；发行包在 Releases 下载。
 

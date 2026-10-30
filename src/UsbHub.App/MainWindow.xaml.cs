@@ -172,6 +172,9 @@ public partial class MainWindow : Window
         resources["Accent"] = contrast ? SystemColors.HighlightBrush : new SolidColorBrush(Color.FromRgb(18, 194, 168));
         resources["AccentGradient"] = contrast ? SystemColors.HighlightBrush : new LinearGradientBrush(Color.FromRgb(18, 194, 168), Color.FromRgb(8, 126, 114), 45);
         resources["InputSurface"] = contrast ? SystemColors.WindowBrush : new SolidColorBrush(Color.FromArgb(184, 255, 255, 255));
+        resources["MenuSurface"] = contrast ? SystemColors.WindowBrush : new SolidColorBrush(Color.FromRgb(244, 250, 249));
+        resources["SelectionSurface"] = contrast ? SystemColors.HighlightBrush : new SolidColorBrush(Color.FromArgb(32, 18, 194, 168));
+        resources["SelectionText"] = contrast ? SystemColors.HighlightTextBrush : resources["TextPrimary"];
         resources["CardBackground"] = contrast ? SystemColors.WindowBrush : new LinearGradientBrush(
             new GradientStopCollection { new(Color.FromArgb(236, 255, 255, 255), 0), new(Color.FromArgb(184, 255, 255, 255), 0.58), new(Color.FromArgb(128, 215, 249, 243), 1) }, new Point(0, 0), new Point(0.85, 1));
     }
@@ -218,6 +221,31 @@ public partial class MainWindow : Window
     }
     private void PreviousPage_Click(object sender, RoutedEventArgs e) => _model.ChangeDevicePage(-1);
     private void NextPage_Click(object sender, RoutedEventArgs e) => _model.ChangeDevicePage(1);
+    private string ScanStatePath => Path.Combine(Path.GetDirectoryName(_settingsPath)!, "scan-state.json");
+    private void DeleteDevice_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_model.CanEditDevices || sender is not MenuItem { DataContext: DeviceViewModel device }) return;
+        try
+        {
+            ActiveScanSchedule.ForgetDevice(ScanStatePath, device.Device);
+            _model.SetDevices(ActiveScanSchedule.FilterDeletedDevices(ScanStatePath, _model.RawDevices));
+            SetTrayDevices(); UpdateTray();
+            _model.Status = $"已删除 {device.Name} 的信息 · 可在设置中恢复识别";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
+        { _model.Notice = "删除失败，请在设备读取结束后重试：" + ex.Message; }
+    }
+    private void RestoreDeletedDevices_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_model.CanEditDevices) return;
+        try
+        {
+            ActiveScanSchedule.RestoreDeletedDevices(ScanStatePath);
+            _model.Status = "已恢复设备识别 · 点击刷新设备重新读取";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
+        { _model.Notice = "恢复失败，请在设备读取结束后重试：" + ex.Message; }
+    }
     private void Filter_Checked(object sender, RoutedEventArgs e) { if (DataContext is MainViewModel model && sender is RadioButton { Tag: string filter }) model.SetFilter(filter); }
     private void SaveSettings_Click(object sender, RoutedEventArgs e)
     {

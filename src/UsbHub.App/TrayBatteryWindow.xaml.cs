@@ -52,7 +52,8 @@ public partial class TrayBatteryWindow : Window
 
     internal void FitToWorkArea(double width, double height)
     {
-        Width = Math.Max(1, Math.Min(300, width));
+        MaxWidth = Math.Max(1, Math.Min(520, width));
+        Width = MaxWidth;
         MaxHeight = Math.Max(1, Math.Min(420, height));
     }
 
