@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>usbHub · 托盘电量面板</title><link rel="stylesheet" href="ui/liquid-glass.css"><script src="ui/liquid-glass.js" defer></script></head>
+<body class="popup-scene">
+  <div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="window-silhouette" aria-hidden="true"><div class="silhouette-sidebar"><b>usb<span>Hub</span></b><i></i><i></i></div><div class="silhouette-content"><div class="silhouette-toolbar"></div><div class="silhouette-grid"><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>
+  <section class="tray-panel glass" aria-label="usbHub 设备电量">
+    <header class="tray-header"><a class="brand" href="usbhub.html"><span><b>usb</b><em>Hub</em></span></a><span>设备电量</span></header>
+    <div class="tray-list" id="tray-list"></div>
+    <footer class="tray-actions"><a class="primary" href="usbhub.html">打开主窗口</a><button id="popup-refresh">刷新设备</button><button id="popup-exit">退出</button></footer>
+    <p class="tray-caption">设计预览 · 示例设备</p>
+  </section>
+  <div class="closed-panel glass" id="closed-panel" hidden><span data-icon="layers"></span><h2>usbHub 已退出</h2><button class="primary" id="reopen-popup">重新打开预览</button></div>
+  <div class="toast glass" id="toast" role="status" hidden></div>
+</body></html>

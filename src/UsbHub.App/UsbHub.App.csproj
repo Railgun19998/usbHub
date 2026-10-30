@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\UsbHub.ico</ApplicationIcon>
+    <AssemblyName>UsbHub</AssemblyName>
+    <RootNamespace>UsbHub.App</RootNamespace>
+    <Description>Windows wireless device battery monitor</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UsbHub.Core\UsbHub.Core.csproj" />
+    <Resource Include="Assets\UsbHub.ico" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>usbHub · 设备总览</title><link rel="stylesheet" href="ui/liquid-glass.css"><script src="ui/liquid-glass.js" defer></script></head>
+<body>
+  <div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="workspace">
+    <aside class="sidebar glass">
+      <a class="brand" href="usbhub.html"><span class="brand-mark" data-icon="layers"></span><span><b>usb</b><em>Hub</em></span></a>
+      <div class="nav-label">工作空间</div>
+      <nav aria-label="主导航"><button class="nav-item active" data-page="overview"><span data-icon="home"></span>设备总览</button><button class="nav-item" data-page="settings"><span data-icon="bell"></span>提醒与设置</button></nav>
+      <div class="sidebar-bottom"><div class="monitor-status"><span class="status-dot"></span><span>休眠友好监测</span><small>已开启</small></div><div class="sidebar-version">WINDOWS 11 <span>ver1.2.2</span></div></div>
+    </aside>
+    <main>
+      <header class="titlebar"><div class="breadcrumb"><span>工作空间</span><i>·</i><strong id="page-title">设备总览</strong></div><div class="window-actions"><button aria-label="最小化预览" data-window="minimize">−</button><button aria-label="切换全屏预览" data-window="maximize">□</button><button aria-label="关闭预览" data-window="close">×</button></div></header>
+      <section class="overview" id="overview-page" aria-label="设备总览">
+        <div class="toolbar glass"><div class="tabs" role="tablist" aria-label="连接方式筛选"><button role="tab" aria-selected="true" class="selected" data-filter="all">全部设备</button><button role="tab" aria-selected="false" data-filter="bluetooth">蓝牙</button><button role="tab" aria-selected="false" data-filter="usb">USB / HID</button><button role="tab" aria-selected="false" data-filter="low">低电量</button></div><label class="search"><span data-icon="search"></span><input type="search" id="device-search" placeholder="搜索设备" aria-label="搜索设备名称或制造商" autocomplete="off"></label></div>
+        <div class="device-grid" id="device-grid" aria-live="polite"></div>
+        <div class="empty-state glass" id="empty-state" hidden><span data-icon="search"></span><h2>没有匹配的设备</h2><p>试试其他设备名称，或切换连接类型。</p><button id="clear-search" class="primary">查看全部设备</button></div>
+      </section>
+      <section class="settings-page" id="settings-page" hidden><div class="settings-heading"><h1>提醒与设置</h1><p>留一份安心，给每台设备。</p></div><form id="settings-form"><div class="settings-card glass"><h2>低电量提醒</h2><label class="toggle-row"><input type="checkbox" id="notifications" checked><span class="switch"></span>启用 Windows 系统通知</label><label class="range-label" for="threshold">电量 ≤ <output id="threshold-value">30</output>% 时提醒</label><input id="threshold" type="range" min="5" max="50" step="5" value="30"><p>仅对实时读取成功的设备提醒。缓存、断连和未知电量不会触发提醒。</p></div><div class="settings-card glass"><h2>运行与外观</h2><label class="toggle-row"><input id="close-to-tray" type="checkbox" checked><span class="switch"></span>关闭窗口时继续在系统托盘运行</label><label class="toggle-row"><input id="motion" type="checkbox" checked><span class="switch"></span>开启柔光漂移与玻璃交互</label><div class="settings-note"><span data-icon="moon"></span><div><strong>每 30 分钟主动读取一次</strong><p>手动刷新、设备插拔和系统恢复均遵守同一间隔，避免频繁打扰设备休眠。</p></div></div></div><button type="submit" class="primary save-settings">保存设置</button><span class="preview-note">网页预览设置仅保存在当前浏览器</span></form></section>
+      <footer class="statusbar"><div><span class="status-dot"></span><span id="status-text">6 台设备 · 4 台电量可读</span><span class="preview-badge">设计预览 · 示例数据</span></div><div><span class="page-controls" id="page-controls" hidden><button id="previous-page" aria-label="上一页">‹</button><span id="page-count"></span><button id="next-page" aria-label="下一页">›</button></span><button class="refresh-action" id="refresh"><span data-icon="refresh"></span>刷新设备</button></div></footer>
+    </main>
+  </div>
+  <div class="toast glass" id="toast" role="status" hidden></div>
+</body></html>
