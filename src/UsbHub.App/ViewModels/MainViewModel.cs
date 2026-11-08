@@ -60,6 +60,7 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     public bool Notifications { get => _settings.NotificationsEnabled; set { _settings = _settings with { NotificationsEnabled = value }; SettingsChanged(); } }
     public bool CloseToTray { get => _settings.CloseToTray; set { _settings = _settings with { CloseToTray = value }; SettingsChanged(); } }
     public bool GlassEnabled { get => _settings.GlassEnabled; set { _settings = _settings with { GlassEnabled = value }; SettingsChanged(); } }
+    public bool StartWithWindows { get => _settings.StartWithWindows; set { _settings = _settings with { StartWithWindows = value }; SettingsChanged(); } }
 
     public void SetPage(string page) { _page = page; Changed(nameof(IsOverview)); Changed(nameof(IsSettings)); }
     public void SetFilter(string filter) { _filter = filter; ApplyFilter(); }
@@ -72,6 +73,7 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     private void SettingsChanged()
     {
         Changed(nameof(Threshold)); Changed(nameof(Interval)); Changed(nameof(Notifications)); Changed(nameof(CloseToTray)); Changed(nameof(GlassEnabled));
+        Changed(nameof(StartWithWindows));
         Changed(nameof(ThresholdDescription)); Changed(nameof(ProtectionSummary)); Changed(nameof(LowCount)); Changed(nameof(Settings));
         ApplyFilter();
     }

@@ -9,6 +9,7 @@ public sealed record AppSettings
     public bool NotificationsEnabled { get; init; } = true;
     public bool CloseToTray { get; init; } = true;
     public bool GlassEnabled { get; init; } = true;
+    public bool StartWithWindows { get; init; }
 
     public AppSettings Validated() => this with
     {

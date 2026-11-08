@@ -48,7 +48,7 @@ public partial class App : Application
             {
                 _mutex = new Mutex(true, @"Local\UsbHub.Desktop.v1", out _ownsMutex);
                 _restore = new EventWaitHandle(false, EventResetMode.AutoReset, @"Local\UsbHub.Restore.v1");
-                if (!_ownsMutex) { _restore.Set(); Shutdown(); return; }
+                if (!_ownsMutex) { if (!background) _restore.Set(); Shutdown(); return; }
                 SetCurrentProcessExplicitAppUserModelID("UsbHub.Desktop");
             }
             var settings = AppSettings.Load(Path.Combine(_dataDirectory, "settings.json"), out var warning);

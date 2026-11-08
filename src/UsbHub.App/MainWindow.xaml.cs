@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _plugDebounce = new() { Interval = TimeSpan.FromSeconds(2) };
     private readonly CancellationTokenSource _shutdown = new();
     private readonly LowBatteryPolicy _alertPolicy = new();
+    private readonly StartupRegistration _startup = new();
     private TrayIcon? _tray;
     private readonly TrayBatteryWindow _trayTooltip = new();
     private bool _exit;
@@ -37,6 +39,13 @@ public partial class MainWindow : Window
     internal MainWindow(MainViewModel model, string settingsPath, bool automated, string? warning)
     {
         _model = model; _settingsPath = settingsPath; _automated = automated; _settingsWarning = warning; _activeSettings = model.Settings;
+        if (!automated)
+        {
+            try { _model.StartWithWindows = _startup.IsEnabled; }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException)
+            { _settingsWarning = string.Join("\n", new[] { _settingsWarning, "开机启动状态读取失败：" + ex.Message }.Where(s => !string.IsNullOrEmpty(s))); }
+            _activeSettings = _model.Settings;
+        }
         GlassEffects.MotionEnabled = !automated;
         InitializeComponent();
         VersionLabel.Text = $"WINDOWS 11  /  ver{typeof(App).Assembly.GetName().Version!.ToString(3)}";
@@ -251,7 +260,8 @@ public partial class MainWindow : Window
     {
         try
         {
-            _model.Settings.Save(_settingsPath);
+            if (_automated) _model.Settings.Save(_settingsPath);
+            else _startup.Save(_model.Settings, _settingsPath);
             _activeSettings = _model.Settings;
             _settingsWarning = null;
             _timer.Interval = TimeSpan.FromSeconds(_model.Interval);
@@ -259,7 +269,7 @@ public partial class MainWindow : Window
             _model.Notice = "";
             _model.Status = "设置已保存";
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { _model.Notice = "设置保存失败：" + ex.Message; }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException) { _model.Notice = "设置保存失败：" + ex.Message; }
     }
     private void TestNotification_Click(object sender, RoutedEventArgs e)
     {

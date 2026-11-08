@@ -37,8 +37,10 @@ $runtimeNote
 托盘面板每行显示两个设备。右键主窗口设备卡片可删除该设备的信息；刷新和重启后仍不显示或提醒，可在设置中恢复已删除设备，再点击刷新重新识别。
 设置 settings.json 和扫描缓存 scan-state.json 保存在 CHUB.exe 同目录；移动程序时请一并移动这两个文件。
 点击刷新会立即读取设备和电量；自动查询每 30 分钟一轮，未知或缓存电量不会触发低电量提醒。
+刷新保留已有设备；本轮未发现设备或未读到电量时保留旧记录与缓存电量，只有手动删除才清除设备信息。
 支持范围取决于设备协议；NuPhy Air75 V3 的 2.4 GHz 电量目前未支持。
-默认不设置开机自启，不安装服务，不修改外设配置，不上传数据。
+开机自启动默认关闭；在“提醒与设置”中勾选后保存，登录 Windows 时自动在托盘运行。移动程序目录后请重新保存设置以更新启动位置。
+不安装服务，不修改外设配置，不上传数据。
 "@ | Set-Content -LiteralPath (Join-Path $outDir '使用说明.txt') -Encoding UTF8
     $unexpected = Get-ChildItem -LiteralPath $outDir -Force | Where-Object { $_.Name -notin @('CHUB.exe', '使用说明.txt') }
     if ($unexpected) { throw "Unexpected package content: $($unexpected.Name -join ', ')" }

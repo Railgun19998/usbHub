@@ -4,7 +4,7 @@ Windows 11 外设电量工具，使用 .NET 10 / WPF，支持设备总览、系�
 
 ## 下载与运行
 
-在 [GitHub Releases](https://github.com/Railgun19998/usbHub/releases/latest) 下载 **CHUB ver1.5.1** 自包含发行包，解压后双击 `CHUB.exe`，无需另装运行库。
+在 [GitHub Releases](https://github.com/Railgun19998/usbHub/releases/latest) 下载 **CHUB** 自包含发行包，解压后双击 `CHUB.exe`，无需另装运行库。
 
 右键点击托盘图标查看设备电量；面板中可打开主窗口、刷新或退出。设置 `settings.json` 和扫描缓存 `scan-state.json` 保存在 `CHUB.exe` 同目录，首次升级会迁移旧版本数据且不覆盖同目录已有文件。程序默认不开机自启、不安装服务、不上传设备数据。
 
@@ -26,6 +26,10 @@ XInput 只提供电量等级。唯一手柄可关联其实际 HID 名称，多�
 
 自动读取每 30 分钟一轮；点击主窗口或托盘的刷新会立即重新识别设备并读取电量，随后重新计算自动读取时间。插拔和启动也会根据 Windows 缓存的设备信息更新手柄列表。缓存、未知、断开和充电状态不触发低电量提醒；区间电量按上界判断提醒阈值。
 
+刷新会保留已有设备，本轮未发现的设备继续显示，连接状态标为待确认；未读到新电量时保留旧电量并标为缓存，原读取时间不变。后续读到有效电量时更新对应记录；只有手动“删除设备信息”才清除设备缓存。
+
+“提醒与设置 → 运行与外观”提供开机自启动开关，默认关闭。勾选后点击“保存设置”，下次登录 Windows 时自动在托盘后台运行；取消勾选并保存会移除启动项。设置仅作用于当前 Windows 用户。移动程序目录后，请运行新位置的程序并重新保存设置，以更新启动路径。
+
 ## 从源码构建
 
 安装 .NET 10 SDK，在项目目录运行：
@@ -34,7 +38,7 @@ XInput 只提供电量等级。唯一手柄可关联其实际 HID 名称，多�
 .\scripts\Build.ps1 -SelfContained
 ```
 
-输出 `artifacts/CHUB-ver1.5.1-win-x64.zip`，仅包含 `CHUB.exe` 与简短使用说明。不带 `-SelfContained` 时生成需要 .NET 10 Desktop Runtime x64 的精简包。
+输出 `artifacts/CHUB-ver1.6.1-win-x64.zip`，仅包含 `CHUB.exe` 与简短使用说明。不带 `-SelfContained` 时生成需要 .NET 10 Desktop Runtime x64 的精简包。
 
 仓库只保留程序源码、构建必需文件与本说明；发行包在 Releases 下载。
 

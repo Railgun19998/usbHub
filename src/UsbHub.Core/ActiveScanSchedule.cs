@@ -26,7 +26,8 @@ public static class ActiveScanSchedule
             checkpoint = checkpoint with { LastAttemptAt = now };
             Save(statePath, checkpoint);
             var result = await query(token);
-            result = result with { Devices = FilterDeletedDevices(checkpoint, result.Devices) };
+            result = result with { Devices = FilterDeletedDevices(checkpoint,
+                MergeDevices(checkpoint.Result?.Devices ?? [], result.Devices)) };
             Save(statePath, checkpoint with { Result = result });
             return new(result, true, now.AddSeconds(IntervalSeconds));
         }
@@ -66,6 +67,29 @@ public static class ActiveScanSchedule
     {
         var removed = (checkpoint.DeletedDeviceKeys ?? []).ToHashSet(StringComparer.OrdinalIgnoreCase);
         return devices.Where(d => !removed.Contains(DeviceKey(d))).ToArray();
+    }
+
+    private static IReadOnlyList<WirelessDevice> MergeDevices(IEnumerable<WirelessDevice> previous, IEnumerable<WirelessDevice> current)
+    {
+        var devices = new Dictionary<string, WirelessDevice>(StringComparer.OrdinalIgnoreCase);
+        foreach (var device in previous)
+            devices[DeviceKey(device)] = device with { IsCached = device.HasBattery, IsConnected = null };
+        foreach (var device in current)
+        {
+            var key = DeviceKey(device);
+            // Discovery or a failed battery read must not erase the last known reading.
+            // Explicit wired power supersedes a previous battery reading.
+            devices[key] = !device.HasBattery && device.IsBatteryPresent != false &&
+                devices.TryGetValue(key, out var cached) && cached.HasBattery
+                ? device with
+                {
+                    BatteryPercent = cached.BatteryPercent, BatteryRange = cached.BatteryRange, Band = cached.Band,
+                    IsBatteryPresent = device.IsBatteryPresent ?? cached.IsBatteryPresent,
+                    IsCached = true, ReadAt = cached.ReadAt, Source = cached.Source
+                }
+                : device;
+        }
+        return devices.Values.OrderBy(d => d.Name, StringComparer.CurrentCultureIgnoreCase).ToArray();
     }
 
     private static ScanCheckpoint Load(string path) => File.Exists(path)
